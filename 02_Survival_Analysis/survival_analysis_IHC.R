@@ -8,8 +8,6 @@ df <- subset(survival_data, Include_ACT_OS_Analysis==1) # only those that receiv
 survival_data$OS <- survival_data$Include_ACT_OS_Analysis
 survival_data$Include_ACT_OS_Analysis <- NULL
 
-
-
 ### Plot with ml predictions (threshold=0.5)
 
 merged <- read.csv("../05_Comparisons_PDL1_Performance/merged_PDL1stained.csv")
