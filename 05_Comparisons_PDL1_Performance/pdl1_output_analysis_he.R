@@ -2,7 +2,7 @@ rm(list = ls())
 library(ggplot2)
 library(tidyverse)
 
-ml_results <- read.csv("output.txt", sep=" ", header=FALSE)
+ml_results <- read.csv("output_HEstained.txt", sep=" ", header=FALSE)
 data <- read.csv("PDL1scores.csv")
 View(data)
 View(ml_results)
@@ -64,6 +64,13 @@ counts <- merged %>%
   )
 print(counts)
 
+######## START HERE ######
+
+merged <- read.csv("merged_HEstained.csv")
+
+merged$class <- ifelse(merged$class_predicted == 1 & merged$class_true == 0, 1, 
+                       ifelse(merged$class_predicted == 0 & merged$class_true == 1, 2, 
+                              ifelse(merged$class_predicted == 0 & merged$class_true == 0, 3, 0)))
 
 
 # create confusion matrices
@@ -72,34 +79,40 @@ conf_df <- as.data.frame.matrix(conf_mat)
 conf_df$predicted <- rownames(conf_df)
 rownames(conf_df) <- NULL
 conf_df <- tidyr::pivot_longer(conf_df, -predicted, names_to = "true", values_to = "count")
+conf_df
+
 
 # Plot the heatmap
-ggplot(conf_df, aes(x = predicted, y = true, fill = count)) +
+conf_heatmap <- ggplot(conf_df, aes(x = predicted, y = true, fill = count)) +
   geom_tile() +
-  scale_fill_gradient(low = "white", high = "steelblue") +
+  scale_fill_gradient(low = "white", high = "darkgreen") +
   geom_text(aes(label = count), color = "black", size = 3) +  # add text to the plot
-  labs(title = "Confusion Matrix H&E stained", x = "Predicted", y = "True") +
-  theme_minimal()
+  labs(title = "B: Predicted classes of H&E-stained images", x = "Predicted class", y = "True class") +
+  theme_minimal() 
 
 
+conf_heatmap
 
 # load ggplot2
 library(ggplot2)
 library(hrbrthemes)
+require(gridExtra)
 
-merged$class <- ifelse(merged$class_predicted == 1 & merged$class_true == 0, 1, 
-                   ifelse(merged$class_predicted == 0 & merged$class_true == 1, 2, 
-                          ifelse(merged$class_predicted == 0 & merged$class_true == 0, 3, 0)))
 
 
 
 # A basic scatterplot with color depending on Species
-ggplot(merged, aes(x=score_predicted, y=score_true, color=class)) + 
+scatterplot <- ggplot(merged, aes(x=score_predicted, y=score_true, color=class)) + 
   geom_point(size=4) +
-  geom_vline(xintercept = 0.5, color = "black") +
-  geom_hline(yintercept = 0.01, color = "black") +
-  ggtitle("H&E stained images")
+  #geom_vline(xintercept = 0.5, color = "black") +
+  #geom_hline(yintercept = 0.01, color = "black") +
+  ggtitle("A: Predicted scores of H&E-stained images") +
+  xlab("Predicted score")+
+  ylab("True score")+
+  theme(legend.position = "none")  
 
+
+grid.arrange(scatterplot, conf_heatmap, ncol = 2)
 
 
 
