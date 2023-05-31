@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Apr 18 11:05:25 2023
-
-@author: fschulz
+Author: fschulz
 
 Usage: python3 rgb2hed.py <folder_name> <image_name>
+
+This script takes a RGB image and converts it to HED colour space.
+Then, the H-layer is extracted and the image is saved to the current working directory
+with the same name as before (given the extension was .jpg).
 """
 import sys
 import numpy as np
@@ -23,6 +25,10 @@ hedimg = rgb2hed(rgbimg)
 # Separating hematoxylin from hed layers, converting hematoxylin stain layer back to RGB
 null = np.zeros_like(hedimg[:, :, 0])
 hedimg_h = hed2rgb(np.stack((hedimg[:, :, 0], null, null), axis=-1))
+
+# For getting H and E layers instead, uncomment this line:
+#hedimg_h = hed2rgb(np.stack((hedimg[:, :, 0], hedimg[:, :, 1], null), axis=-1))
+
 
 # Make hed_h into uint8 from float64 so that it can be saved with PIL Image
 h_norm = hedimg_h / np.max(hedimg_h) # normalize the array to have values between 0 and 1
